@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -57,8 +58,10 @@ public class ProfileZipSlip extends ProfileUploadBase {
       @RequestParam("uploadedFileZipSlip") MultipartFile file, @CurrentUsername String username) {
     if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
       return failed(this).feedback("path-traversal-zip-slip.no-zip").build();
+    } else if (file.getOriginalFilename().startsWith("..")) {
+        throw new IllegalArgumentException("The file name must not start with '..'");
     } else {
-      return processZipUpload(file, username);
+        return processZipUpload(file, username);
     }
   }
 
@@ -76,6 +79,11 @@ public class ProfileZipSlip extends ProfileUploadBase {
       Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
         ZipEntry e = entries.nextElement();
+          String entryName = e.getName();
+          Path entryPath = tmpZipDirectory.resolve(entryName).normalize();
+          if (!entryPath.startsWith(tmpZipDirectory)) {
+              throw new SecurityException("Path traversal attempt, filename passed: " + entryName);
+          }
         File f = new File(tmpZipDirectory.toFile(), e.getName());
         InputStream is = zip.getInputStream(e);
         Files.copy(is, f.toPath(), StandardCopyOption.REPLACE_EXISTING);

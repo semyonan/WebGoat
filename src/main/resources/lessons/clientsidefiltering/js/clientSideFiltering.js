@@ -3,7 +3,19 @@ var dataFetched = false;
 function selectUser() {
 
     var newEmployeeID = $("#UserSelect").val();
-    document.getElementById("employeeRecord").innerHTML = document.getElementById(newEmployeeID).innerHTML;
+    var selectedEmployeeElement = document.getElementById(newEmployeeID);
+    if (selectedEmployeeElement) {
+        var employeeRecordHtml = selectedEmployeeElement.innerHTML;
+
+        var safeContent = document.createElement("div");
+        safeContent.textContent = employeeRecordHtml;
+
+        document.getElementById("employeeRecord").innerHTML = '';
+        document.getElementById("employeeRecord").appendChild(safeContent);
+    }
+    else {
+        console.error("No employee record found with ID:", newEmployeeID);
+    }
 }
 
 function fetchUserData() {
@@ -14,6 +26,10 @@ function fetchUserData() {
 }
 
 function ajaxFunction(userId) {
+    if (!/^\d+$/.test(userId)) {
+        console.error("Invalid userId provided.");
+        return;
+    }
     $.get("clientSideFiltering/salaries?userId=" + userId, function (result, status) {
         var html = "<table border = '1' width = '90%' align = 'center'";
         html = html + '<tr>';
