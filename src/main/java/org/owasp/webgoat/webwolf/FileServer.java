@@ -69,6 +69,9 @@ public class FileServer {
     var username = authentication.getName();
     var destinationDir = new File(fileLocation, username);
     destinationDir.mkdirs();
+    if (multipartFile.getOriginalFilename().startsWith("..") {
+        throw new IllegalArgumentException("The file name must not start with '..'");
+      }
     // DO NOT use multipartFile.transferTo(), see
     // https://stackoverflow.com/questions/60336929/java-nio-file-nosuchfileexception-when-file-transferto-is-called
     try (InputStream is = multipartFile.getInputStream()) {

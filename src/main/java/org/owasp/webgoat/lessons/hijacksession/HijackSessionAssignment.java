@@ -38,7 +38,7 @@ public class HijackSessionAssignment implements AssignmentEndpoint {
     this.provider = provider;
   }
 
-  @PostMapping(path = "/HijackSession/login")
+  @PostMapping(path = "/JWT/secret", headers = "X-CSRFToken=csrftoken")
   @ResponseBody
   public AttackResult login(
       @RequestParam String username,

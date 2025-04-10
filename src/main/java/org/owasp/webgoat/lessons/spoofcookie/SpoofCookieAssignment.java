@@ -72,8 +72,10 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
     if (!authPassword.isBlank() && authPassword.equals(password)) {
       String newCookieValue = EncDec.encode(lowerCasedUsername);
       Cookie newCookie = new Cookie(COOKIE_NAME, newCookieValue);
-      newCookie.setPath("/WebGoat");
-      newCookie.setSecure(true);
+        newCookie.setHttpOnly(true);
+        newCookie.setAttribute("SameSite", "true");
+        newCookie.setPath("/WebGoat");
+        newCookie.setSecure(true);
       response.addCookie(newCookie);
       return informationMessage(this)
           .feedback("spoofcookie.login")

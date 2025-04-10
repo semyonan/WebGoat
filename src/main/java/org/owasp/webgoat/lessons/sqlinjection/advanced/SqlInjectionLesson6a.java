@@ -7,11 +7,8 @@ package org.owasp.webgoat.lessons.sqlinjection.advanced;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+
 import org.owasp.webgoat.container.LessonDataSource;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
@@ -51,7 +48,7 @@ public class SqlInjectionLesson6a implements AssignmentEndpoint {
     String query = "";
     try (Connection connection = dataSource.getConnection()) {
       boolean usedUnion = this.unionQueryChecker(accountName);
-      query = "SELECT * FROM user_data WHERE last_name = '" + accountName + "'";
+      query = "SELECT * FROM user_data WHERE last_name = ?";
 
       return executeSqlInjection(connection, query, usedUnion);
     } catch (Exception e) {

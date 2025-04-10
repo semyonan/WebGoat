@@ -31,24 +31,35 @@ public class SSRFTask2 implements AssignmentEndpoint {
   }
 
   protected AttackResult furBall(String url) {
-    if (url.matches("http://ifconfig\\.pro")) {
-      String html;
-      try (InputStream in = new URL(url).openStream()) {
-        html =
-            new String(in.readAllBytes(), StandardCharsets.UTF_8)
-                .replaceAll("\n", "<br>"); // Otherwise the \n gets escaped in the response
+      URL parsedUrl;
+
+      try {
+          parsedUrl = new URL(url);
       } catch (MalformedURLException e) {
-        return getFailedResult(e.getMessage());
-      } catch (IOException e) {
-        // in case the external site is down, the test and lesson should still be ok
-        html =
-            "<html><body>Although the http://ifconfig.pro site is down, you still managed to solve"
-                + " this exercise the right way!</body></html>";
+          return getFailedResult("Invalid URL");
       }
+
+      if (!"http".equalsIgnoreCase(parsedUrl.getProtocol())) {
+          return getFailedResult("Only HTTP protocol is allowed");
+      }
+
+      if (!parsedUrl.getHost().equals("ifconfig.pro")) {
+          return getFailedResult("Host not allowed");
+      }
+
+      String html;
+      try (InputStream in = parsedUrl.openStream()) {
+          html =
+                  new String(in.readAllBytes(), StandardCharsets.UTF_8)
+                          .replaceAll("\n", "<br>"); // Otherwise the \n gets escaped in the response
+      } catch (IOException e) {
+          // in case the external site is down, the test and lesson should still be ok
+          html =
+                  "<html><body>Although the http://ifconfig.pro site is down, you still managed to solve"
+                          + " this exercise the right way!</body></html>";
+      }
+
       return success(this).feedback("ssrf.success").output(html).build();
-    }
-    var html = "<img class=\"image\" alt=\"image post\" src=\"images/cat.jpg\">";
-    return getFailedResult(html);
   }
 
   private AttackResult getFailedResult(String errorMsg) {
